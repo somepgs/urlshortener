@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/somepgs/urlshortener/internal/handler"
 	"log"
 	"net/http"
 	"os"
@@ -16,18 +17,12 @@ func envOrDefault(key, defaultValue string) string {
 
 // main initializes the HTTP server and handles requests.
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.WriteHeader(http.StatusOK)
-		_, err := w.Write([]byte("Hello, World!"))
-		if err != nil {
-			log.Printf("Error writing response: %v", err)
-		}
-	})
-
-	port := ":" + envOrDefault("URLSHORT_PORT", "8080") // Default port is 8080 if not set
+	port := ":" + envOrDefault("URLSHORT_PORT", "8080")
 	log.Printf("Starting server on port %s", port)
-	if err := http.ListenAndServe(port, nil); err != nil {
+
+	router := handler.SetupRoutes()
+
+	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
